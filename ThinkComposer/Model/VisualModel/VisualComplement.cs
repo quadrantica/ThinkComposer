@@ -283,7 +283,7 @@ namespace Instrumind.ThinkComposer.Model.VisualModel
             var ContextView = this.GetDisplayingView();
             if (ContextView.SnapToGrid)
             {
-                var SnappedArea = ContextView.GetGridSnappedArea(this.BaseCenter, this.BaseWidth, this.BaseHeight);
+                var SnappedArea = ContextView.GetGridSnappedArea(this.BaseCenter, this.BaseWidth, this.BaseHeight, false);
                 this.BaseWidth = SnappedArea.Width.EnforceMinimum(1.0);
                 this.BaseHeight = SnappedArea.Height.EnforceMinimum(1.0);
                 this.BaseCenter = new Point(SnappedArea.X + SnappedArea.Width / 2.0, SnappedArea.Y + SnappedArea.Height / 2.0);

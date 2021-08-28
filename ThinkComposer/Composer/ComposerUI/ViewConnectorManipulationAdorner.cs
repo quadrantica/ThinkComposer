@@ -57,7 +57,7 @@ namespace Instrumind.ThinkComposer.Composer.ComposerUI
         public EConnectorManipulationAction TentativeAction { get { return (EConnectorManipulationAction)this.TentativeAction_; } set { this.TentativeAction_ = (byte)value; } }
 
         Pen FrmPencil = new Pen(Brushes.LightCyan, 0);
-        Brush FrmStroke = Brushes.Yellow.Clone();
+        Brush FrmStroke = Brushes.Blue.Clone();//Yellow.Clone();
         Brush FrmStrokeEdit = Brushes.Goldenrod;
         Brush FrmStrokeUnpointed = Brushes.LightGray;
 

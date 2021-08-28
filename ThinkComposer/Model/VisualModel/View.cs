@@ -2160,7 +2160,7 @@ namespace Instrumind.ThinkComposer.Model.VisualModel
         /// <summary>
         /// Gets the supplied Coordinate snapped/adjusted to the view grid size.
         /// </summary>
-        public double GetGridSnappedCoordinate(double Coordinate, bool ApplyScale = true)
+        public double GetGridSnappedCoordinate(double Coordinate, bool ApplyScale = true, int mode = 0)
         {
             var Interval = (ApplyScale
                             ? this.GridSize * ((double)this.PageDisplayScale / 100.0)
@@ -2169,8 +2169,15 @@ namespace Instrumind.ThinkComposer.Model.VisualModel
             var Div = Coordinate / Interval;
 
             var Pos = Interval * Math.Floor(Div);
-            if (Coordinate > Pos + (Interval / 2.0))
+            if (mode == 0)
+            {
+                if (Coordinate > Pos + (Interval / 2.0))
+                    Pos = Pos + Interval;
+            } 
+            else if(mode == 1)
+            {
                 Pos = Pos + Interval;
+            }
 
             //T Console.WriteLine("Coordinate: Original={0}, New={1}.", Coordinate, Pos);
             Coordinate = Pos;
@@ -2183,8 +2190,8 @@ namespace Instrumind.ThinkComposer.Model.VisualModel
         /// </summary>
         public Rect GetGridSnappedArea(Point Center, double Width, double Height, bool ApplyScale = true)
         {
-            Width = GetGridSnappedCoordinate(Width, ApplyScale);
-            Height = GetGridSnappedCoordinate(Height, ApplyScale);
+            Width = GetGridSnappedCoordinate(Width, ApplyScale, 0);
+            Height = GetGridSnappedCoordinate(Height, ApplyScale, 0);
 
             var Left = Center.X - Width / 2.0;
             var Top = Center.Y - Height / 2.0;
@@ -2203,8 +2210,7 @@ namespace Instrumind.ThinkComposer.Model.VisualModel
         public Point GetGridSnappedPosition(Point Position, bool ApplyScale)
         {
             Position = new Point(GetGridSnappedCoordinate(Position.X, ApplyScale),
-                                 GetGridSnappedCoordinate(Position.Y, ApplyScale));
-
+                                    GetGridSnappedCoordinate(Position.Y, ApplyScale));
             return Position;
         }
 

@@ -74,7 +74,7 @@ namespace Instrumind.ThinkComposer.Composer.ComposerUI
         Dictionary<Visual, DetailDesignator> FrmDetailContentEditZones = new Dictionary<Visual, DetailDesignator>();
 
         Pen FrmPencil = new Pen(Brushes.LightCyan, 0);
-        Brush FrmStroke = Brushes.Yellow;
+        Brush FrmStroke = Brushes.Blue; // Yellow;
         Brush FrmStrokeEdit = Brushes.Goldenrod;
 
         double FrmOpacity = 0.2;

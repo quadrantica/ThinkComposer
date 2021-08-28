@@ -758,6 +758,10 @@ namespace Instrumind.ThinkComposer.Composer
         public bool CommandMultiPosMin2_IsEnabled(object Parameter)
         {
             var Eng = (CompositionEngine)this.WorkspaceDirector.ActiveDocumentEngine;
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            {
+                return (Eng != null && Eng.CurrentView != null && Eng.CurrentView.SelectedObjects.Count >= 1);
+            }
             return (Eng != null && Eng.CurrentView != null && Eng.CurrentView.SelectedObjects.Count >= 2);
         }
 
@@ -776,15 +780,47 @@ namespace Instrumind.ThinkComposer.Composer
             //T Console.WriteLine("Aligning to Top...");
             Eng.StartCommandVariation("Align Top");
 
-            var FirstVisObj = Eng.CurrentView.SelectedObjects.First();
-            var AlignmentPosition = FirstVisObj.BaseTop;
-
-            foreach (var Selection in Eng.CurrentView.SelectedObjects.Skip(1))
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
-                var NewPos = AlignmentPosition + (Selection.BaseHeight / 2.0);
-                Selection.MoveTo(Selection.BaseCenter.X, NewPos, true);
-            }
+                var FirstVisObj = Eng.CurrentView.SelectedObjects.First();
+                var AlignmentPosition = Eng.CurrentView.GetGridSnappedCoordinate( FirstVisObj.BaseTop, false );
+                foreach (var Selection in Eng.CurrentView.SelectedObjects.Skip(1))
+                {
+                    var NewPos = Eng.CurrentView.GetGridSnappedCoordinate(Selection.BaseTop, false);
+                    if(NewPos< AlignmentPosition)
+                    {
+                        AlignmentPosition = NewPos;
+                    }
+                }
 
+                if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+                {
+                    foreach (var Selection in Eng.CurrentView.SelectedObjects)
+                    {
+                        Selection.ResizeTo(Selection.BaseWidth, Selection.BaseTop + Selection.BaseHeight - AlignmentPosition);
+                        var NewMiddle = AlignmentPosition + (Selection.BaseHeight / 2.0);
+                        Selection.MoveTo(Selection.BaseCenter.X, NewMiddle, true);
+                    }
+                }
+                else
+                {
+                    foreach (var Selection in Eng.CurrentView.SelectedObjects)
+                    {
+                        var NewPos = AlignmentPosition + (Selection.BaseHeight / 2.0);
+                        Selection.MoveTo(Selection.BaseCenter.X, NewPos, true);
+                    }
+                }
+            }
+            else
+            {
+                var FirstVisObj = Eng.CurrentView.SelectedObjects.First();
+                var AlignmentPosition = FirstVisObj.BaseTop;
+                foreach (var Selection in Eng.CurrentView.SelectedObjects.Skip(1))
+                {
+                    var NewPos = AlignmentPosition + (Selection.BaseHeight / 2.0);
+                    Selection.MoveTo(Selection.BaseCenter.X, NewPos, true);
+                }
+            }
             Eng.CompleteCommandVariation();
         }
 
@@ -797,15 +833,47 @@ namespace Instrumind.ThinkComposer.Composer
             //T Console.WriteLine("Aligning to Left...");
             Eng.StartCommandVariation("Align Left");
 
-            var FirstVisObj = Eng.CurrentView.SelectedObjects.First();
-            var AlignmentPosition = FirstVisObj.BaseLeft;
-
-            foreach (var Selection in Eng.CurrentView.SelectedObjects.Skip(1))
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
-                var NewCenter = AlignmentPosition + (Selection.BaseWidth / 2.0);
-                Selection.MoveTo(NewCenter, Selection.BaseCenter.Y, true);
+                var FirstVisObj = Eng.CurrentView.SelectedObjects.First();
+                var AlignmentPosition = Eng.CurrentView.GetGridSnappedCoordinate(FirstVisObj.BaseLeft, false);
+                foreach (var Selection in Eng.CurrentView.SelectedObjects.Skip(1))
+                {
+                    var NewPos = Eng.CurrentView.GetGridSnappedCoordinate(Selection.BaseLeft, false);
+                    if (NewPos < AlignmentPosition)
+                    {
+                        AlignmentPosition = NewPos;
+                    }
+                }
+                if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+                {
+                    foreach (var Selection in Eng.CurrentView.SelectedObjects)
+                    {
+                        Selection.ResizeTo(Selection.BaseLeft+Selection.BaseWidth-AlignmentPosition, Selection.BaseHeight);
+                        var NewCenter = AlignmentPosition + (Selection.BaseWidth / 2.0);
+                        Selection.MoveTo(NewCenter, Selection.BaseCenter.Y, true);
+                    }
+                }
+                else
+                {
+                    foreach (var Selection in Eng.CurrentView.SelectedObjects)
+                    {
+                        var NewCenter = AlignmentPosition + (Selection.BaseWidth / 2.0);
+                        Selection.MoveTo(NewCenter, Selection.BaseCenter.Y, true);
+                    }
+                }
             }
+            else
+            {
+                var FirstVisObj = Eng.CurrentView.SelectedObjects.First();
+                var AlignmentPosition = FirstVisObj.BaseLeft;
 
+                foreach (var Selection in Eng.CurrentView.SelectedObjects.Skip(1))
+                {
+                    var NewCenter = AlignmentPosition + (Selection.BaseWidth / 2.0);
+                    Selection.MoveTo(NewCenter, Selection.BaseCenter.Y, true);
+                }
+            }
             Eng.CompleteCommandVariation();
         }
 
@@ -818,21 +886,61 @@ namespace Instrumind.ThinkComposer.Composer
             //T Console.WriteLine("Aligning to Bottom...");
             Eng.StartCommandVariation("Align Bottom");
 
-            var FirstVisObj = Eng.CurrentView.SelectedObjects.First();
-            var AlignmentPosition = FirstVisObj.BaseTop +
-                                    (FirstVisObj is VisualSymbol
-                                     ? ((VisualSymbol)FirstVisObj).TotalHeight
-                                     : FirstVisObj.BaseHeight);
 
-            foreach (var Selection in Eng.CurrentView.SelectedObjects.Skip(1))
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
-                var NewMiddle = AlignmentPosition - ((Selection.BaseHeight / 2.0)
-                                                     + (Selection is VisualSymbol && ((VisualSymbol)Selection).AreDetailsShown
-                                                        ? ((VisualSymbol)Selection).DetailsPosterHeight
-                                                        : 0));
-                Selection.MoveTo(Selection.BaseCenter.X, NewMiddle, true);
+                var FirstVisObj = Eng.CurrentView.SelectedObjects.First();
+                var AlignmentPosition = Eng.CurrentView.GetGridSnappedCoordinate(FirstVisObj.BaseTop + FirstVisObj.BaseHeight, false);
+                foreach (var Selection in Eng.CurrentView.SelectedObjects.Skip(1))
+                {
+                    var NewPos = Eng.CurrentView.GetGridSnappedCoordinate(Selection.BaseTop + Selection.BaseHeight, false);
+                    if (NewPos > AlignmentPosition)
+                    {
+                        AlignmentPosition = NewPos;
+                    }
+                }
+                if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+                {
+                    foreach (var Selection in Eng.CurrentView.SelectedObjects)
+                    {
+                        Selection.ResizeTo(Selection.BaseWidth, AlignmentPosition - Selection.BaseTop);
+                        var NewMiddle = AlignmentPosition - (Selection.BaseHeight / 2.0);
+                        Selection.MoveTo(Selection.BaseCenter.X, NewMiddle, true);
+                    }
+                }
+                else
+                {
+                    foreach (var Selection in Eng.CurrentView.SelectedObjects)
+                    {
+                        var NewMiddle = AlignmentPosition - (Selection.BaseHeight / 2.0);
+                        Selection.MoveTo(Selection.BaseCenter.X, NewMiddle, true);
+                    }
+                }
             }
-
+            else
+            {
+                var FirstVisObj = Eng.CurrentView.SelectedObjects.First();
+                /*
+                var AlignmentPosition = FirstVisObj.BaseTop +
+                                        (FirstVisObj is VisualSymbol
+                                         ? ((VisualSymbol)FirstVisObj).TotalHeight
+                                         : FirstVisObj.BaseHeight);
+                foreach (var Selection in Eng.CurrentView.SelectedObjects.Skip(1))
+                {
+                    var NewMiddle = AlignmentPosition - ((Selection.BaseHeight / 2.0)
+                                                         + (Selection is VisualSymbol && ((VisualSymbol)Selection).AreDetailsShown
+                                                            ? ((VisualSymbol)Selection).DetailsPosterHeight
+                                                            : 0));
+                    Selection.MoveTo(Selection.BaseCenter.X, NewMiddle, true);
+                }
+                */
+                var AlignmentPosition = FirstVisObj.BaseTop + FirstVisObj.BaseHeight;
+                foreach (var Selection in Eng.CurrentView.SelectedObjects.Skip(1))
+                {
+                    var NewMiddle = AlignmentPosition - (Selection.BaseHeight / 2.0);
+                    Selection.MoveTo(Selection.BaseCenter.X, NewMiddle, true);
+                }
+            }
             Eng.CompleteCommandVariation();
         }
 
@@ -844,14 +952,46 @@ namespace Instrumind.ThinkComposer.Composer
 
             //T Console.WriteLine("Aligning to Right...");
             Eng.StartCommandVariation("Align Right");
-
-            var FirstVisObj = Eng.CurrentView.SelectedObjects.First();
-            var AlignmentPosition = FirstVisObj.BaseCenter.X + (FirstVisObj.BaseWidth / 2.0);
-
-            foreach (var Selection in Eng.CurrentView.SelectedObjects.Skip(1))
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
-                var NewCenter = AlignmentPosition - (Selection.BaseWidth / 2.0);
-                Selection.MoveTo(NewCenter, Selection.BaseCenter.Y, true);
+                var FirstVisObj = Eng.CurrentView.SelectedObjects.First();
+                var AlignmentPosition = Eng.CurrentView.GetGridSnappedCoordinate(FirstVisObj.BaseLeft + FirstVisObj.BaseWidth, false);
+                foreach (var Selection in Eng.CurrentView.SelectedObjects.Skip(1))
+                {
+                    var NewPos = Eng.CurrentView.GetGridSnappedCoordinate(Selection.BaseLeft + Selection.BaseWidth, false);
+                    if (NewPos > AlignmentPosition)
+                    {
+                        AlignmentPosition = NewPos;
+                    }
+                }
+                if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+                {
+                    foreach (var Selection in Eng.CurrentView.SelectedObjects)
+                    {
+                        Selection.ResizeTo(AlignmentPosition-Selection.BaseLeft, Selection.BaseHeight);
+                        var NewCenter = AlignmentPosition - (Selection.BaseWidth / 2.0);
+                        Selection.MoveTo(NewCenter,Selection.BaseCenter.Y, true);
+                    }
+                }
+                else
+                {
+                    foreach (var Selection in Eng.CurrentView.SelectedObjects)
+                    {
+                        var NewCenter = AlignmentPosition - (Selection.BaseWidth / 2.0);
+                        Selection.MoveTo(NewCenter, Selection.BaseCenter.Y, true);
+                    }
+                }
+            }
+            else
+            {
+                var FirstVisObj = Eng.CurrentView.SelectedObjects.First();
+                var AlignmentPosition = FirstVisObj.BaseCenter.X + (FirstVisObj.BaseWidth / 2.0);
+
+                foreach (var Selection in Eng.CurrentView.SelectedObjects.Skip(1))
+                {
+                    var NewCenter = AlignmentPosition - (Selection.BaseWidth / 2.0);
+                    Selection.MoveTo(NewCenter, Selection.BaseCenter.Y, true);
+                }
             }
 
             Eng.CompleteCommandVariation();

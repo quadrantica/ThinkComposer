@@ -104,10 +104,10 @@ namespace Instrumind.ThinkComposer.Composer.ComposerUI
 
             TargetLocation = Parameter.GetPosition(this.ContextEngine.CurrentView.PresenterControl);
             TargetRepresentation = this.ContextEngine.GetPointedRepresentation(TargetLocation, false);
-
+            var OriginalTargetLocation = TargetLocation;
             // IMPORTANT: Get the snapped position AFTER obtain the pointed representation
             if (this.ContextEngine.CurrentView.SnapToGrid)
-                TargetLocation = this.ContextEngine.CurrentView.GetGridSnappedPosition(TargetLocation, true);
+                TargetLocation = this.ContextEngine.CurrentView.GetGridSnappedPosition(TargetLocation, false);
 
             var Width = 0.0;
             var Height = 0.0;
@@ -141,6 +141,11 @@ namespace Instrumind.ThinkComposer.Composer.ComposerUI
                         Width = 0.0;
                         Height = 0.0;
                     }
+                }  
+                else
+                {
+                    if (this.ContextEngine.CurrentView.SnapToGrid)
+                        TargetLocation = OriginalTargetLocation;
                 }
 
                 OperationResult<Concept> CreationResult = new OperationResult<Concept>();
@@ -331,7 +336,7 @@ namespace Instrumind.ThinkComposer.Composer.ComposerUI
 
             if (TargetView.SnapToGrid)
             {
-                var SnappedArea = TargetView.GetGridSnappedArea(CenterPosition, Width, Height);
+                var SnappedArea = TargetView.GetGridSnappedArea(CenterPosition, Width, Height, false);
 
                 if (!Target.ConceptDefinitor.Value.DefaultSymbolFormat.HasFixedWidth)
                     Width = SnappedArea.Width.EnforceMinimum(TargetView.GridSize);
